@@ -11,6 +11,7 @@ set(HDRS_DBOW2
   DBoW2/FeatureVector.h
   DBoW2/ScoringObject.h   
   DBoW2/TemplatedVocabulary.h)
+
 set(SRCS_DBOW2
   DBoW2/BowVector.cpp
   DBoW2/FORB.cpp      
@@ -20,10 +21,20 @@ set(SRCS_DBOW2
 set(HDRS_DUTILS
   DUtils/Random.h
   DUtils/Timestamp.h)
+
 set(SRCS_DUTILS
   DUtils/Random.cpp
   DUtils/Timestamp.cpp)
 
+# Boost configuration
+set(BOOST_ROOT /opt/homebrew/Cellar/boost/1.86.0_2)
+set(BOOST_INCLUDE_DIR ${BOOST_ROOT}/include)
+set(BOOST_LIBRARY_DIR ${BOOST_ROOT}/lib)
+
+# Find Boost
+find_package(Boost 1.86.0 REQUIRED serialization)
+
+# OpenCV configuration
 find_package(OpenCV 4.0 QUIET)
 if(NOT OpenCV_FOUND)
    find_package(OpenCV 3.0 QUIET)
@@ -34,7 +45,22 @@ endif()
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 
-include_directories(${OpenCV_INCLUDE_DIRS})
-add_library(DBoW2 SHARED ${SRCS_DBOW2} ${SRCS_DUTILS})
-target_link_libraries(DBoW2 ${OpenCV_LIBS})
+# Include directories
+include_directories(
+    ${OpenCV_INCLUDE_DIRS}
+    ${Boost_INCLUDE_DIRS}
+    .
+)
 
+# Create shared library
+add_library(DBoW2 SHARED ${SRCS_DBOW2} ${SRCS_DUTILS})
+
+# Link libraries
+target_link_libraries(DBoW2 
+    ${OpenCV_LIBS}
+    ${Boost_LIBRARIES}
+)
+
+# Print some debug information
+message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
+message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
